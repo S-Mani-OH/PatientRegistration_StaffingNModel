@@ -1,0 +1,7 @@
+# CC License
+
+Copyright (c) 2019 Columbus Collaboratory LLC - All Rights Reserved 
+
+This code is confidential Collaboratory property. This software and its code may only be used by Collaboratory Members for internal business purposes. 
+
+For more information consult the Collaboratory Master Services Agreement.
