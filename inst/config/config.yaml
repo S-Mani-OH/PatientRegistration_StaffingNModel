@@ -1,5 +1,12 @@
-# delimiter
-# incoming folder
-# hospitals
-# include patient class
-# admissions types
+default:
+  file:
+    delimiter: !expr ifelse(Sys.getenv("DELIMITER") != "", Sys.getenv("DELIMITER"), '|')
+    extension: !expr ifelse(Sys.getenv("EXTENSION") != "", Sys.getenv("EXTENSION"), '.dat')
+  path:
+    inbound: !expr ifelse(Sys.getenv("INBOUND_PATH") != "", Sys.getenv("INBOUND_PATH"), '~/inbound')
+    outbound: !expr ifelse(Sys.getenv("OUTBOUND_PATH") != "", Sys.getenv("OUTBOUND_PATH"), '~/outbound')
+    historical_rds:
+  hospitals:
+    names: !expr ifelse(Sys.getenv("HOSPITALS") != "", Sys.getenv("HOSPITALS"), 'Doctors,Dublin,Grady,Grant,Grove City,Lewis Center,Pickerington,Riverside,Westerville')
+    admission_types: !expr ifelse(Sys.getenv("ADM_TYPE") != "", Sys.getenv("ADM_TYPE"), 'DA,ED,LD')
+    exclude_patient_classes: !expr ifelse(Sys.getenv("EXCL_PT_CLASS") != "", Sys.getenv("EXCL_PT_CLASS"), '')
