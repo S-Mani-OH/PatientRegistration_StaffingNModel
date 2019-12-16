@@ -32,6 +32,7 @@ today_date <- Sys.Date()
 # set up parameters
 # the incremental path
 inbound_path <- conf$path$inbound
+
 # the outbound path for daily output
 outbound_path <- conf$path$outbound
 # the outbound path for historical daily outputs
@@ -61,6 +62,12 @@ ordered_files <- enframe(
          date=as.Date(str_replace_all(date, "_", "-"))) %>%
   arrange(date) %>%
   arrange(value)
+
+
+if(nrow(ordered_files)==0){
+  cat("No data found.\n")
+  q()
+}
 
 ordered_cols <- ordered_files %>%
   pull(value)
@@ -95,6 +102,12 @@ hist_df <- ordered_cols %>%
   map2_dfr(.f = read_add_cols,
            .y = admit_cols)
 
+if(nrow(hist_df)==0){
+  cat("Data not properly loaded.\n")
+  q()
+}
+
+
 ## save compressed version of the historical data
 historical_data <- dir(
   path=conf$path$historical_rds,
@@ -102,10 +115,15 @@ historical_data <- dir(
   full.names = TRUE
 )
 
+if(length(historical_file)==0){
+  cat("No compressed (rds) historical data found. \n")
+}
+
 # remove old historical data
 unlink(historical_data)
 
 # save new historical data
+
 saveRDS(
   hist_df,
   file=sprintf(
