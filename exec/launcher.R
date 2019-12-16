@@ -112,7 +112,7 @@ historical_data <- dir(
   full.names = TRUE
 )
 
-if(length(historical_file)==0){
+if(length(historical_data)==0){
   cat("No compressed (rds) historical data found. \n")
 }
 
