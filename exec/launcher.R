@@ -1,12 +1,14 @@
 # this file invokves the launch
 
 # load libraries
-library(readr)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(tidyr)
-library(mgcv)
+suppressMessages({
+  library(readr)
+  library(stringr)
+  library(dplyr)
+  library(purrr)
+  library(tidyr)
+  library(mgcv)
+
 
 conf <- config::get(
   file=system.file(
@@ -330,4 +332,5 @@ df1y_pred %>%
                          unique(projection_dates$forecast_date)))
 
 
+})
 

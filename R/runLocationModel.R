@@ -5,6 +5,7 @@
 #' @import dplyr
 #' @import tidyr
 #' @import purrr
+#' @importFrom tibble enframe
 #' @importFrom stats binomial
 #' @importFrom stats na.omit
 #' @importFrom stats predict
