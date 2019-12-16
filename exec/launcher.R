@@ -2,7 +2,6 @@
 
 # load libraries
 library(readr)
-library(config)
 library(stringr)
 library(dplyr)
 library(purrr)
