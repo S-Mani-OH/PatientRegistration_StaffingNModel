@@ -1,3 +1,12 @@
+#' Launcher that initializes the run process analysis
+#' @import lubridate
+#' @import config
+#' @import dplyr
+#' @import stringr
+#' @import readr
+#' @import purrr
+#' @import tidyr
+
 # this file invokves the launch
 
 # load libraries
@@ -7,7 +16,6 @@ suppressMessages({
   library(dplyr)
   library(purrr)
   library(tidyr)
-  library(mgcv)
 
 
 conf <- config::get(
