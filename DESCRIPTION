@@ -19,5 +19,6 @@ Imports:
     purrr,
     mgcv,
     readr,
+    stringr,
     tibble,
     config
