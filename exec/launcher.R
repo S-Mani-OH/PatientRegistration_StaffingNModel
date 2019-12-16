@@ -6,6 +6,7 @@
 #' @import readr
 #' @import purrr
 #' @import tidyr
+#' @import tibble
 
 # this file invokves the launch
 
@@ -16,6 +17,7 @@ suppressMessages({
   library(dplyr)
   library(purrr)
   library(tidyr)
+  library(tibble)
 
 
 conf <- config::get(
@@ -84,7 +86,8 @@ read_add_cols <- function(x, cols) {x %>%
 
 incoming_length <- length(ordered_cols)
 
-admit_cols <- rep(admission_types, each=incoming_length/length(admission_types))
+admit_cols <- rep(admission_types,
+                  each=incoming_length/length(admission_types))
 
 # add admission type
 hist_df <- ordered_cols %>%
