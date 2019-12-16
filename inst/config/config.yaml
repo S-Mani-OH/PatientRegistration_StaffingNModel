@@ -3,10 +3,11 @@ default:
     delimiter: !expr ifelse(Sys.getenv("DELIMITER") != "", Sys.getenv("DELIMITER"), '|')
     extension: !expr ifelse(Sys.getenv("EXTENSION") != "", Sys.getenv("EXTENSION"), '.dat')
   path:
-    inbound: !expr ifelse(Sys.getenv("INBOUND_PATH") != "", Sys.getenv("INBOUND_PATH"), '~/inbound')
-    outbound: !expr ifelse(Sys.getenv("OUTBOUND_PATH") != "", Sys.getenv("OUTBOUND_PATH"), '~/outbound')
-    historical_rds:
+    inbound: !expr ifelse(Sys.getenv("INBOUND_PATH") != "", Sys.getenv("INBOUND_PATH"), "/storage/transfers/Inbound")
+    outbound: !expr ifelse(Sys.getenv("OUTBOUND_PATH") != "", Sys.getenv("OUTBOUND_PATH"), "/storage/transfers/Outbound/daily_output")
+    old_daily_outbound: !expr ifelse(Sys.getenv("OLD_OUTBOUND_PATH") != "", Sys.getenv("OLD_OUTBOUND_PATH"), "/storage/transfers/Outbound/old_daily_output")
+    historical_rds: !expr ifelse(Sys.getenv("HISTORICAL_RDS") != "", Sys.getenv("HISTORICAL_RDS"), '/storage/projects/patient_access_staffing/historical_data')
   hospitals:
     names: !expr ifelse(Sys.getenv("HOSPITALS") != "", Sys.getenv("HOSPITALS"), 'Doctors,Dublin,Grady,Grant,Grove City,Lewis Center,Pickerington,Riverside,Westerville')
-    admission_types: !expr ifelse(Sys.getenv("ADM_TYPE") != "", Sys.getenv("ADM_TYPE"), 'DA,ED,LD')
+    admission_types: !expr ifelse(Sys.getenv("ADM_TYPE") != "", Sys.getenv("ADM_TYPE"), 'DA,LD,ED')
     exclude_patient_classes: !expr ifelse(Sys.getenv("EXCL_PT_CLASS") != "", Sys.getenv("EXCL_PT_CLASS"), '')
