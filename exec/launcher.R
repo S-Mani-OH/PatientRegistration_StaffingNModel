@@ -78,10 +78,7 @@ ordered_dates <- ordered_files %>%
 ordered_files <- ordered_files %>%
   mutate(group=
     {
-      ordered_files$value %>%
-        str_split("/") %>%
-        map_chr(c(5,1)) %>%
-        str_replace("_[0-9]+_[0-9]+_[0-9]+.dat", "")
+      str_replace(basename(value),"_[0-9]+_[0-9]+_[0-9]+.dat", "")
     }
   )
 
