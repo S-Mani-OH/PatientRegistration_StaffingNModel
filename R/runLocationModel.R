@@ -43,15 +43,16 @@ runLocationModel <- function(hospital_name, input_df){
 
   exp_hr_df <- pilot_ct %>%
     mutate(pred_mean=expected_hr[,1],
-           pred_sd=.01 + exp(expected_hr[,2])) %>%
+           pred_sd=0.01 + exp(expected_hr[,2])) %>%
     mutate(q_lower=qnorm(0.10, .data$pred_mean, .data$pred_sd),
            q_lower = if_else(.data$q_lower < 0, 0, .data$q_lower),
            q_upper=qnorm(0.90, .data$pred_mean, .data$pred_sd))
 
   ### PREPARE FOR LOGISTIC MODEL
+
   date_hr <- pilot_ct %>%
     select(.data$diffdate, .data$hospital) %>%
-    unite(.data$diffhos, c("diffdate", "hospital")) %>%
+    unite("diffhos", c("diffdate", "hospital")) %>%
     distinct()
 
 
@@ -78,6 +79,7 @@ runLocationModel <- function(hospital_name, input_df){
            n=ifelse(n >= 1, 1, 0)) %>%
     as_tibble()
 
+  ## run logistic model
   system.time({
     mod_log_hos <-
       gam(n ~
@@ -94,15 +96,14 @@ runLocationModel <- function(hospital_name, input_df){
     hospital=hospitals
   )
 
-
   projected_dates <- pilot_ct %>%
     select(.data$hospital, .data$diffdate) %>%
     group_by(.data$hospital) %>%
     summarize(diffdate=max(.data$diffdate)) %>%
     left_join(df_1y) %>%
     group_split(.data$hospital) %>%
-    map(~expand(.data, diffdate=seq(unique(.data$diffdate)+1, unique(.data$diffdate)+365))) %>%
-    map2(.x=.data,
+    map(~expand(., diffdate=seq(unique(.$diffdate)+1, unique(.$diffdate)+365))) %>%
+    map2(.x=.,
          .y=sort(unique(df_1y$hospital)),
          .f=function(x, y) mutate(x, hospital=y)) %>%
     bind_rows()
@@ -118,25 +119,31 @@ runLocationModel <- function(hospital_name, input_df){
                       newdata=df_1y,
                       type = "link")
 
-  probs_hos <- predict(mod_log_hos,
-                       df_1y,
+  probs_hos <- predict(object=mod_log_hos,
+                       newdata=df_1y,
                        type="response")
 
   df1y_pred <- df_1y %>%
     mutate(pred_mean=pred_hos[,1],
            pred_sd=0.01+exp(pred_hos[,2]),
-           probs=probs_hos) %>%
+           probs_log=probs_hos) %>%
     mutate(q_lower=qnorm(0.10, .data$pred_mean, .data$pred_sd),
            q_lower = if_else(.data$q_lower < 0, 0, .data$q_lower),
            q_upper=qnorm(0.90, .data$pred_mean, .data$pred_sd)) %>%
+    mutate(mixed_n=.data$pred_mean*.data$probs_log,
+           upper_mixed=.data$probs_log*.data$q_upper,
+           lower_mixed=.data$probs_log*.data$q_lower) %>%
     mutate(shift=case_when(.data$hour>=7 & .data$hour <15 ~ 1,
                            .data$hour>=15 & .data$hour <23 ~ 2,
                            .data$hour>=23 ~ 3,
                            .data$hour>=0 & .data$hour <7 ~ 3))
 
+
   df1y_pred <- df1y_pred %>%
+    mutate(hospital=as.character(.data$hospital))
     as_tibble()
 
+  ## grab observed data
   obs <- daily_hist_df %>%
     mutate(start_date=min(.data$date),
            diffdate=as.numeric(.data$date-.data$start_date)) %>%

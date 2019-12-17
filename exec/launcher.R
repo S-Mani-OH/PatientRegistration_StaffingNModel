@@ -172,7 +172,7 @@ hist_df <- hist_df %>%
 #### now I need to make sure that the diffdate makes sense ....
 ## filter out any data that is 'today'
 daily_hist_df <- hist_df %>%
-  filter(date < today_date,
+  filter(date < today_date-1,
          date >= as.Date("2017-01-01"))
 
 ### check dates
@@ -181,8 +181,10 @@ daily_hist_df %>%
   summarize(min_date=min(date),
             max_date=max(date))
 
+#### run models
 res <- hospitals %>%
-  map(runLocationModel, daily_hist_df)
+  map(runLocationModel,
+      daily_hist_df)
 
 df1y_pred <- res %>%
   map_df(1)
@@ -190,12 +192,14 @@ df1y_pred <- res %>%
 obs <- res %>%
   map_df(2)
 
+### prepare for output
 max_diffdates <- df1y_pred %>%
   group_by(hospital) %>%
   summarize(max_diffdate=max(diffdate))
 
 projection_dates <- daily_hist_df %>%
-  select(hospital, date) %>%
+  select(hospital,
+         date) %>%
   group_by(hospital) %>%
   summarize(start_date=min(date),
             last_date=max(date)) %>%
