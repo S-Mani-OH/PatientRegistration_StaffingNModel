@@ -1,12 +1,24 @@
+#' Launcher that initializes the run process analysis
+#' @import lubridate
+#' @import config
+#' @import dplyr
+#' @import stringr
+#' @import readr
+#' @import purrr
+#' @import tidyr
+#' @import tibble
+
 # this file invokves the launch
 
 # load libraries
-library(readr)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(tidyr)
-library(mgcv)
+suppressMessages({
+  library(readr)
+  library(stringr)
+  library(dplyr)
+  library(purrr)
+  library(tidyr)
+  library(tibble)
+
 
 conf <- config::get(
   file=system.file(
@@ -20,6 +32,7 @@ today_date <- Sys.Date()
 # set up parameters
 # the incremental path
 inbound_path <- conf$path$inbound
+
 # the outbound path for daily output
 outbound_path <- conf$path$outbound
 # the outbound path for historical daily outputs
@@ -50,6 +63,12 @@ ordered_files <- enframe(
   arrange(date) %>%
   arrange(value)
 
+
+if(nrow(ordered_files)==0){
+  cat("No data found.\n")
+  q()
+}
+
 ordered_cols <- ordered_files %>%
   pull(value)
 
@@ -59,10 +78,7 @@ ordered_dates <- ordered_files %>%
 ordered_files <- ordered_files %>%
   mutate(group=
     {
-      ordered_files$value %>%
-        str_split("/") %>%
-        map_chr(c(5,1)) %>%
-        str_replace("_[0-9]+_[0-9]+_[0-9]+.dat", "")
+      str_replace(basename(value),"_[0-9]+_[0-9]+_[0-9]+.dat", "")
     }
   )
 
@@ -74,13 +90,20 @@ read_add_cols <- function(x, cols) {x %>%
 
 incoming_length <- length(ordered_cols)
 
-admit_cols <- rep(admission_types, each=incoming_length/length(admission_types))
+admit_cols <- rep(admission_types,
+                  each=incoming_length/length(admission_types))
 
 # add admission type
 hist_df <- ordered_cols %>%
   sort() %>%
   map2_dfr(.f = read_add_cols,
            .y = admit_cols)
+
+if(nrow(hist_df)==0){
+  cat("Data not properly loaded.\n")
+  q()
+}
+
 
 ## save compressed version of the historical data
 historical_data <- dir(
@@ -89,10 +112,15 @@ historical_data <- dir(
   full.names = TRUE
 )
 
+if(length(historical_data)==0){
+  cat("No compressed (rds) historical data found. \n")
+}
+
 # remove old historical data
 unlink(historical_data)
 
 # save new historical data
+
 saveRDS(
   hist_df,
   file=sprintf(
@@ -330,4 +358,5 @@ df1y_pred %>%
                          unique(projection_dates$forecast_date)))
 
 
+})
 
