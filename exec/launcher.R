@@ -172,7 +172,7 @@ hist_df <- hist_df %>%
 #### now I need to make sure that the diffdate makes sense ....
 ## filter out any data that is 'today'
 daily_hist_df <- hist_df %>%
-  filter(date < today_date-1,
+  filter(date < today_date,
          date >= as.Date("2017-01-01"))
 
 ### check dates
@@ -351,14 +351,17 @@ df1y_pred %>%
          date,
          pred_mean,
          pred_sd,
-         probs,
+         probs_log,
          q_lower,
          q_upper,
-         shift) %>%
+         shift,
+         mixed_n,
+         upper_mixed,
+         lower_mixed) %>%
   arrange(hospital, date)  %>%
   write_csv(path=sprintf("%s/model_output_%s_to_%s.csv",
                          outbound_path,
-                         today_date,
+                         today_date-1,
                          unique(projection_dates$forecast_date)))
 
 
