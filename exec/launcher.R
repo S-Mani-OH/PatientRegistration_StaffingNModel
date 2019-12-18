@@ -104,7 +104,7 @@ if(nrow(hist_df)==0){
   cat("Data not properly loaded.\n")
   q()
 } else {
-  cat("Data has been loaded.")
+  cat("Data has been loaded.\n")
 }
 
 
@@ -323,7 +323,7 @@ file.copy(dir(outbound_path, full.names = TRUE),
 unlink(dir(outbound_path, full.names = TRUE))
 
 ### save predictions by hour
-cat("Output files are saving ...")
+cat("Output files are saving ... \n")
 
 res_hour %>%
   write_csv(path=sprintf(
