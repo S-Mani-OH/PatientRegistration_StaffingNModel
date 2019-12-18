@@ -18,6 +18,7 @@ suppressMessages({
   library(purrr)
   library(tidyr)
   library(tibble)
+  library(staffingModels)
 
 
 conf <- config::get(
@@ -102,6 +103,8 @@ hist_df <- ordered_cols %>%
 if(nrow(hist_df)==0){
   cat("Data not properly loaded.\n")
   q()
+} else {
+  cat("Data has been loaded.")
 }
 
 
@@ -176,15 +179,23 @@ daily_hist_df <- hist_df %>%
          date >= as.Date("2017-01-01"))
 
 ### check dates
-daily_hist_df %>%
+df <- daily_hist_df %>%
   group_by(hospital) %>%
   summarize(min_date=min(date),
             max_date=max(date))
 
+cat("The data includes data from: \n", df)
+
 #### run models
+
+
+cat("Running model...\n")
+
 res <- hospitals %>%
   map(runLocationModel,
       daily_hist_df)
+
+cat("Modeling complete ...\n")
 
 df1y_pred <- res %>%
   map_df(1)
@@ -311,6 +322,8 @@ file.copy(dir(outbound_path, full.names = TRUE),
 unlink(dir(outbound_path, full.names = TRUE))
 
 ### save predictions by hour
+cat("Output files are saving ...")
+
 res_hour %>%
   write_csv(path=sprintf(
     "%s/prediction_%s_to_%s_by_hour.csv",
@@ -364,6 +377,8 @@ df1y_pred %>%
                          today_date-1,
                          unique(projection_dates$forecast_date)))
 
+cat("Analysis complete!\n")
+q()
 
 })
 
