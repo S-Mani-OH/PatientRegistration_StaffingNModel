@@ -20,7 +20,8 @@ suppressMessages({
   library(tibble)
   library(staffingModels)
 
-
+cat(sprintf("Predictive Staffing analysis started at %s UTC.", Sys.time()), "\n ")
+t1 <- Sys.time()
 conf <- config::get(
   file=system.file(
     "config/config.yaml",
@@ -378,7 +379,11 @@ df1y_pred %>%
                          today_date-1,
                          unique(projection_dates$forecast_date)))
 
-cat("Analysis complete!\n")
+t2 <- Sys.time()
+
+cat(sprintf("Analysis completed at %s UTC.", Sys.time()), "\n")
+#cat(sprintf("The analysis took %s seconds.", round(t2-t1, 4)), "\n")
+
 q()
 
 })
