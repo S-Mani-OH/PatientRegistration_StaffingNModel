@@ -184,8 +184,9 @@ df <- daily_hist_df %>%
   summarize(min_date=min(date),
             max_date=max(date))
 
-cat("The data includes data from: \n", df)
-
+cat("The data includes data from: \n")
+capture.output(df)
+cat("\n")
 #### run models
 
 
