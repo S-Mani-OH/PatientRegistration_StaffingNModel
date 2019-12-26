@@ -20,6 +20,7 @@ suppressMessages({
   library(tibble)
   library(staffingModels)
 
+cat(sprintf("Predictive Staffing analysis started at %s UTC.", Sys.time()), "\n")
 
 conf <- config::get(
   file=system.file(
@@ -70,6 +71,12 @@ if(nrow(ordered_files)==0){
   q()
 }
 
+if(!today_date %in% unique(ordered_files$date)){
+  cat("Today data not found.")
+  q()
+}
+
+
 ordered_cols <- ordered_files %>%
   pull(value)
 
@@ -84,7 +91,8 @@ ordered_files <- ordered_files %>%
   )
 
 # import data
-read_add_cols <- function(x, cols) {x %>%
+read_add_cols <- function(x, cols) {
+  x %>%
     read_delim(delim="|") %>%
     mutate(admit_type=cols)
 }
@@ -165,7 +173,6 @@ cnds <- map(cnds, rlang::parse_expr)
 vals <- map(vals, rlang::parse_expr)
 fs <- map2(cnds, vals, function(c, v) rlang::expr(!!c ~ !!v))
 
-# rlang::qq_show(mutate(hospital = case_when(!!!fs)))
 
 hist_df <- hist_df %>%
   mutate(hospital = case_when(!!!fs)) %>%
@@ -185,16 +192,26 @@ df <- daily_hist_df %>%
             max_date=max(date))
 
 cat("The data includes data from: \n")
-capture.output(df)
+
+for(i in seq_len(nrow(df))){
+  cat(df$hospital[i],
+      "from",
+      as.character(df$min_date[i]),
+      "to",
+      as.character(df$max_date[i]),
+      "\n")
+}
 cat("\n")
 #### run models
 
 
-cat("Running model...\n")
+cat("Running model ...\n")
 
-res <- hospitals %>%
-  map(runLocationModel,
-      daily_hist_df)
+suppressWarnings({
+  res <- hospitals %>%
+    map(runLocationModel,
+        daily_hist_df)
+})
 
 cat("Modeling complete ...\n")
 
@@ -375,10 +392,11 @@ df1y_pred %>%
   arrange(hospital, date)  %>%
   write_csv(path=sprintf("%s/model_output_%s_to_%s.csv",
                          outbound_path,
-                         today_date-1,
+                         today_date,
                          unique(projection_dates$forecast_date)))
 
-cat("Analysis complete!\n")
+cat(sprintf("Analysis completed at %s UTC.", Sys.time()), "\n")
+
 q()
 
 })
