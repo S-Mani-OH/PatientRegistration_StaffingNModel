@@ -1,6 +1,6 @@
 Package: staffingModels
 Title: Predictive staffing using generalized additive models (GAM)
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     person(given = "Abbas",
            family = "Rizvi",
